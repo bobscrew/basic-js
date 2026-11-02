@@ -20,14 +20,46 @@ const { NotImplementedError } = require('../lib');
  *
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    // Remove line below and write your code here
-    throw new NotImplementedError('Not implemented');
+  constructor(direct = true) {
+    this.direct = direct !== false;
   }
 
-  decrypt() {
-    // Remove line below and write your code here
-    throw new NotImplementedError('Not implemented');
+  process(text, key, decrypt) {
+    if (text === undefined || key === undefined) {
+      throw new Error('Incorrect arguments!');
+    }
+    const upper = text.toUpperCase();
+    const keyUpper = key.toUpperCase();
+    let keyIndex = 0;
+    const result = [];
+
+    for (let i = 0; i < upper.length; i += 1) {
+      const char = upper[i];
+      const code = char.charCodeAt(0);
+      if (code >= 65 && code <= 90) {
+        const shift = keyUpper.charCodeAt(keyIndex % keyUpper.length) - 65;
+        let newCode;
+        if (decrypt) {
+          newCode = ((code - 65 - shift + 26) % 26) + 65;
+        } else {
+          newCode = ((code - 65 + shift) % 26) + 65;
+        }
+        result.push(String.fromCharCode(newCode));
+        keyIndex += 1;
+      } else {
+        result.push(char);
+      }
+    }
+    const joined = result.join('');
+    return this.direct ? joined : joined.split('').reverse().join('');
+  }
+
+  encrypt(message, key) {
+    return this.process(message, key, false);
+  }
+
+  decrypt(encryptedMessage, key) {
+    return this.process(encryptedMessage, key, true);
   }
 }
 
